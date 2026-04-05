@@ -198,11 +198,17 @@ Warnings: 0
 The runner reads `hooks_config.txt` to discover which scripts to run for a given event and tool:
 
 ```
-# event_type:tool_matcher:script_path
+# Hook Runner Configuration
+# Format: event_type:tool_matcher:script_path
+# tool_matcher supports * wildcard (matches any tool name)
+# Hooks run in order; first exit-2 stops the chain for PreToolUse
 PreToolUse:Bash:./.claude/hooks/pre_command_firewall.sh
 PreToolUse:Bash:./.claude/hooks/pre_rate_limiter.sh
+PreToolUse:Bash:./.claude/hooks/pre_commit_validator.sh
 PostToolUse:Edit:./.claude/hooks/post_auto_backup.sh
+PostToolUse:Edit:./.claude/hooks/post_syntax_checker.sh
 Stop:*:./.claude/hooks/post_session_summary.sh
+
 ```
 
 - `tool_matcher` can be an exact tool name (`Bash`, `Edit`) or `*` to match any tool.
