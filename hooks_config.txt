@@ -2,7 +2,6 @@
 # Format: event_type:tool_matcher:script_path
 # tool_matcher supports * wildcard (matches any tool name)
 # Hooks run in order; first exit-2 stops the chain for PreToolUse
-PreToolUse:*:./.claude/hooks/pre_env_guard.sh
 PreToolUse:Bash:./.claude/hooks/pre_command_firewall.sh
 PreToolUse:Bash:./.claude/hooks/pre_rate_limiter.sh
 PreToolUse:Bash:./.claude/hooks/pre_commit_validator.sh

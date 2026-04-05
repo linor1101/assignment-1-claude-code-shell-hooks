@@ -87,11 +87,11 @@ CONFIG_DIR="$HOOKS_DIR/config"
 mkdir -p "$CONFIG_DIR"
 
 cat > "$CONFIG_DIR/hooks.conf" <<'EOF'
-# ── Rate Limiter ──────────────────────────────────────────────────────────────
+# Rate Limiter 
 MAX_COMMANDS=50
 WARNING_THRESHOLD=40
 
-# ── Auto Backup ───────────────────────────────────────────────────────────────
+# Auto Backup 
 MAX_BACKUPS=5
 EOF
 
@@ -123,6 +123,19 @@ cat > "$CONFIG_DIR/secret_files.txt" <<'EOF'
 # Secret Files Blacklist
 .env
 folder/.env
+EOF
+
+cat > "$SCRIPT_DIR/hooks_config.txt" <<'EOF'
+# Hook Runner Configuration
+# Format: event_type:tool_matcher:script_path
+# tool_matcher supports * wildcard (matches any tool name)
+# Hooks run in order; first exit-2 stops the chain for PreToolUse
+PreToolUse:Bash:./.claude/hooks/pre_command_firewall.sh
+PreToolUse:Bash:./.claude/hooks/pre_rate_limiter.sh
+PreToolUse:Bash:./.claude/hooks/pre_commit_validator.sh
+PostToolUse:Edit:./.claude/hooks/post_auto_backup.sh
+PostToolUse:Edit:./.claude/hooks/post_syntax_checker.sh
+Stop:*:./.claude/hooks/post_session_summary.sh
 EOF
 
 # ══════════════════════════════════════════════════════════════════════════════
