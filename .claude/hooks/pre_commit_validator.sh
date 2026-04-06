@@ -7,8 +7,6 @@
 # Exit codes: 0 = allow, 2 = block (invalid commit message)
 # =============================================================================
 
-#!/bin/bash
-
 # define the paths
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 PREFIX_FILE="$HOOK_DIR/config/commit_prefixes.txt"
@@ -33,7 +31,7 @@ COMMIT_MSG=$(echo "$COMMAND" | sed -E 's/.*-m[[:space:]]*["'\'']([^"'\'']*)["'\'
 # Loading prefixes and building Regex
 if [ -f "$PREFIX_FILE" ]; then
     # Turns the file into a | separated list 
-    PREFIX_LIST=$(paste -sd "|" "$PREFIX_FILE")
+    PREFIX_LIST=$(paste -sd "|" "$PREFIX_FILE" | tr -d '\r')
     REGEX="^($PREFIX_LIST): .*"
 else
     # Default if file is missing
@@ -41,6 +39,7 @@ else
 fi
 
 # Check if the message matches the format
+# Important: We use double quotes around $REGEX for better compatibility
 if [[ ! "$COMMIT_MSG" =~ $REGEX ]]; then
     # Checking for modified files
     STAGED_FILES=$(git diff --cached --name-only)
@@ -66,8 +65,8 @@ if [[ ! "$COMMIT_MSG" =~ $REGEX ]]; then
     fi
 
     # Print the blocking message and offer
-    VALID_PREFIXES=$(tr '\n' ',' < "$PREFIX_FILE" | sed 's/,$//')
-    printf "BLOCKED: Missing prefix. Based on your changes, try: '%s: %s'. Valid prefixes: %s\n" "$SUGGESTION" "$COMMIT_MSG" "$VALID_PREFIXES" >&2
+    VALID_PREFIXES=$(tr '\n' ',' < "$PREFIX_FILE" | sed 's/,$//' | tr -d '\r')
+    printf "BLOCKED: Missing commit prefix. Based on your changes, try: '%s: %s'. Valid prefixes: %s\n" "$SUGGESTION" "$COMMIT_MSG" "$VALID_PREFIXES" >&2
     exit 2
 fi
 
